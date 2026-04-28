@@ -1,0 +1,496 @@
+{
+    "result": {
+        "tools": [
+            {
+                "name": "design_to_code",
+                "description": "Generate UI code for a given node or the currently selected node in the Pixso desktop app. Use the itemId parameter to specify a item id. If no item id is provided, the currently selected item will be used. If a URL is provided, extract the item id from the URL. For example, if given the URL https://any-host/app/design/:fileName?item-id=1:2, the extracted itemId would be `1:2`",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "itemId": {
+                            "type": "string",
+                            "description": "The ID of the node in the Pixso document, eg. \"123:456\". This should be a valid node ID in the Pixso document."
+                        },
+                        "clientFrameworks": {
+                            "type": "string",
+                            "enum": [
+                                "react",
+                                "vue",
+                                "html",
+                                "arkui",
+                                "flutter"
+                            ],
+                            "default": "html",
+                            "description": "The client framework for the current context. Supported values: `react`, `vue`, `html`, `arkui`, `flutter`. Default is `html` if unknown. This is used for logging to understand which frameworks are being used."
+                        }
+                    },
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+            },
+            {
+                "name": "get_image",
+                "description": "Generate an image for a given node or the currently selected node in the Pixso desktop app. Use the itemId parameter to specify a item id. If no item id is provided, the currently selected item will be used. If a URL is provided, extract the item id from the URL. For example, if given the URL https://any-host/app/design/:fileName?item-id=1:2, the extracted itemId would be `1:2`",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "itemId": {
+                            "type": "string",
+                            "description": "The ID of the node in the Pixso document, eg. \"123:456\". This should be a valid node ID in the Pixso document."
+                        },
+                        "clientFrameworks": {
+                            "type": "string",
+                            "enum": [
+                                "react",
+                                "vue",
+                                "html",
+                                "arkui",
+                                "flutter"
+                            ],
+                            "default": "html",
+                            "description": "The client framework for the current context. Supported values: `react`, `vue`, `html`, `arkui`, `flutter`. Default is `html` if unknown. This is used for logging to understand which frameworks are being used."
+                        }
+                    },
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+            },
+            {
+                "name": "get_node_dsl",
+                "description": "Generate the DSL of the node for a given node or the currently selected node in the Pixso desktop app. Use the itemId parameter to specify a item id. If no item id is provided, the currently selected item will be used. If a URL is provided, extract the item id from the URL. For example, if given the URL https://any-host/app/design/:fileName?item-id=1:2, the extracted itemId would be `1:2`",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "itemId": {
+                            "type": "string",
+                            "description": "The ID of the node in the Pixso document, eg. \"123:456\". This should be a valid node ID in the Pixso document."
+                        },
+                        "clientFrameworks": {
+                            "type": "string",
+                            "enum": [
+                                "react",
+                                "vue",
+                                "html",
+                                "arkui",
+                                "flutter"
+                            ],
+                            "default": "html",
+                            "description": "The client framework for the current context. Supported values: `react`, `vue`, `html`, `arkui`, `flutter`. Default is `html` if unknown. This is used for logging to understand which frameworks are being used."
+                        }
+                    },
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+            },
+            {
+                "name": "get_variants",
+                "description": "Generate the variants of the node for a given node or the currently selected node in the Pixso desktop app. Use the itemId parameter to specify a item id. If no item id is provided, the currently selected item will be used. If a URL is provided, extract the item id from the URL. For example, if given the URL https://any-host/app/design/:fileName?item-id=1:2, the extracted itemId would be `1:2`",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "itemId": {
+                            "type": "string",
+                            "description": "The ID of the node in the Pixso document, eg. \"123:456\". This should be a valid node ID in the Pixso document."
+                        }
+                    },
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+            },
+            {
+                "name": "get_variable_sets",
+                "description": "Get all variable sets",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {}
+                }
+            },
+            {
+                "name": "get_variables",
+                "description": "Get all variables of the variable set by the variable set ID",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "variableSetId": {
+                            "type": "string",
+                            "description": "The ID of the variable set, eg. \"123:456\". "
+                        }
+                    },
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+            },
+            {
+                "name": "get_export_image",
+                "description": "Generate the export image of the node for a given node or the currently selected node in the Pixso desktop app. Use the itemId parameter to specify a item id. If no item id is provided, the currently selected item will be used. If a URL is provided, extract the item id from the URL. For example, if given the URL https://any-host/app/design/:fileName?item-id=1:2, the extracted itemId would be `1:2`",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "itemId": {
+                            "type": "string",
+                            "description": "The ID of the node in the Pixso document, eg. \"123:456\". This should be a valid node ID in the Pixso document."
+                        },
+                        "exportSettings": {
+                            "type": "object",
+                            "properties": {
+                                "constraint": {
+                                    "type": "object",
+                                    "properties": {
+                                        "type": {
+                                            "type": "number",
+                                            "default": 1,
+                                            "description": "Constraint type: 1=scale ratio, 2=width pixels, 3=height pixel"
+                                        },
+                                        "value": {
+                                            "type": "number",
+                                            "default": 1,
+                                            "description": "Constraint value: when type=1 represents scale ratio (e.g. 1 for 100%), when type=2 represents width in pixels, when type=3 represents height in pixels"
+                                        }
+                                    },
+                                    "additionalProperties": false,
+                                    "description": "Export image constraint settings for controlling image dimensions and scaling，when imageType is SVG, type and value must be 1"
+                                },
+                                "svgDataName": {
+                                    "type": "boolean",
+                                    "description": "When the image type is SVG, svgDataName value must be false"
+                                },
+                                "svgForceStrokeMask": {
+                                    "type": "boolean",
+                                    "description": "When the image type is SVG, svgForceStrokeMask value must be false"
+                                },
+                                "svgOutLine": {
+                                    "type": "boolean",
+                                    "description": "When the image type is SVG, svgOutLine value must be false"
+                                },
+                                "svgIDMode": {
+                                    "type": "number",
+                                    "description": "When the image type is SVG, svgIDMode value must be 0"
+                                },
+                                "imageType": {
+                                    "type": "number",
+                                    "default": 1,
+                                    "description": "The type of the exported image, eg. 1=PNG, 2=JPEG, 3=SVG, 4=PDF, 5=SKETCH, 6=EPS, 7=TIFF, 8=WEBP"
+                                },
+                                "suffix": {
+                                    "type": "string",
+                                    "default": "",
+                                    "description": "Custom suffix appended to the image name. For example: default is \"11.png\", if \"ccc\" is passed, the exported image name will be \"11ccc.png\""
+                                },
+                                "contentOnly": {
+                                    "type": "boolean",
+                                    "default": true
+                                },
+                                "useAbsoluteBounds": {
+                                    "type": "boolean",
+                                    "default": false
+                                }
+                            },
+                            "additionalProperties": false,
+                            "description": "Export settings"
+                        }
+                    },
+                    "required": [
+                        "exportSettings"
+                    ],
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+            },
+            {
+                "name": "get_local_styles",
+                "description": "Get all local styles",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {}
+                }
+            },
+            {
+                "name": "get_remote_styles",
+                "description": "Get all remote styles",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {}
+                }
+            },
+            {
+                "name": "get_all_components",
+                "description": "Get all components",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {}
+                }
+            },
+            {
+                "name": "create_instance",
+                "description": "Create an instance based on the component key",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "componentKey": {
+                            "type": "string",
+                            "description": "The key of the component to create the instance"
+                        }
+                    },
+                    "required": [
+                        "componentKey"
+                    ],
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+            },
+            {
+                "name": "set_bound_variables",
+                "description": "Bind variables to the node or text attributes. Use the itemId parameter to specify a item id. If no item id is provided, the currently selected item will be used. If a URL is provided, extract the item id from the URL. For example, if given the URL https://any-host/app/design/:fileName?item-id=1:2, the extracted itemId would be `1:2`",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "bindings": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "itemId": {
+                                        "type": "string",
+                                        "description": "The ID of the node in the Pixso document, eg. \"123:456\". This should be a valid node ID in the Pixso document."
+                                    },
+                                    "index": {
+                                        "type": "number",
+                                        "default": 0,
+                                        "description": "The index of the attribute to bind to the node, the index is 0-based, when fieldName is VariableBindableSpecialField, this parameter is required"
+                                    },
+                                    "fieldName": {
+                                        "anyOf": [
+                                            {
+                                                "type": "string",
+                                                "enum": [
+                                                    "height",
+                                                    "width",
+                                                    "characters",
+                                                    "itemSpacing",
+                                                    "paddingLeft",
+                                                    "paddingRight",
+                                                    "paddingTop",
+                                                    "paddingBottom",
+                                                    "visible",
+                                                    "topLeftRadius",
+                                                    "topRightRadius",
+                                                    "bottomLeftRadius",
+                                                    "bottomRightRadius",
+                                                    "minWidth",
+                                                    "maxWidth",
+                                                    "minHeight",
+                                                    "maxHeight",
+                                                    "counterAxisSpacing",
+                                                    "strokeWeight",
+                                                    "strokeTopWeight",
+                                                    "strokeRightWeight",
+                                                    "strokeBottomWeight",
+                                                    "strokeLeftWeight",
+                                                    "opacity",
+                                                    "gridRowGap",
+                                                    "gridColumnGap",
+                                                    "fontFamily",
+                                                    "fontSize",
+                                                    "fontStyle",
+                                                    "fontWeight",
+                                                    "letterSpacing",
+                                                    "lineHeight",
+                                                    "paragraphSpacing",
+                                                    "paragraphIndent"
+                                                ]
+                                            },
+                                            {
+                                                "type": "string",
+                                                "enum": [
+                                                    "fillColor",
+                                                    "strokeColor",
+                                                    "effectColor",
+                                                    "effectRadius",
+                                                    "effectSpread",
+                                                    "effectOffsetX",
+                                                    "effectOffsetY",
+                                                    "layoutGridSectionSize",
+                                                    "layoutGridCount",
+                                                    "layoutGridOffset",
+                                                    "layoutGridGutterSize"
+                                                ]
+                                            }
+                                        ],
+                                        "description": "The attribute key to bind to the node, the attribute key can be a node attribute key or a text attribute key"
+                                    },
+                                    "variable": {
+                                        "anyOf": [
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ],
+                                                        "description": "the local variable ID"
+                                                    },
+                                                    "assetRef": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "key": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ],
+                                                                "description": "The remote variable key"
+                                                            },
+                                                            "version": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ],
+                                                                "description": "The remote variable version"
+                                                            }
+                                                        },
+                                                        "additionalProperties": false,
+                                                        "description": "The remote variable assetRef"
+                                                    }
+                                                },
+                                                "additionalProperties": false
+                                            },
+                                            {
+                                                "type": "null"
+                                            }
+                                        ],
+                                        "description": "The variable to bind to the node attribute, id and assetRef must pass one, not both, if isRemote is true, assetRef is required, else id is required，if you want to remove the variable, set variable to null"
+                                    }
+                                },
+                                "required": [
+                                    "fieldName",
+                                    "variable"
+                                ],
+                                "additionalProperties": false
+                            },
+                            "description": "The bindings to apply, array items describe the node, field and variable payload."
+                        }
+                    },
+                    "required": [
+                        "bindings"
+                    ],
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+            },
+            {
+                "name": "set_fill_style",
+                "description": "Set the fill style of the node. Use the itemId parameter to specify a item id. If no item id is provided, the currently selected item will be used. If a URL is provided, extract the item id from the URL. For example, if given the URL https://any-host/app/design/:fileName?item-id=1:2, the extracted itemId would be `1:2`",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "itemId": {
+                            "type": "string",
+                            "description": "The ID of the node in the Pixso document, eg. \"123:456\". This should be a valid node ID in the Pixso document."
+                        },
+                        "styleKey": {
+                            "type": "string",
+                            "description": "The key of the color style to set. The key of the style is the key of the style in the style library, if you want to remove the style, pass in an empty string"
+                        }
+                    },
+                    "required": [
+                        "styleKey"
+                    ],
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+            },
+            {
+                "name": "set_stroke_style",
+                "description": "Set the stroke style of the node. Use the itemId parameter to specify a item id. If no item id is provided, the currently selected item will be used. If a URL is provided, extract the item id from the URL. For example, if given the URL https://any-host/app/design/:fileName?item-id=1:2, the extracted itemId would be `1:2`",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "itemId": {
+                            "type": "string",
+                            "description": "The ID of the node in the Pixso document, eg. \"123:456\". This should be a valid node ID in the Pixso document."
+                        },
+                        "styleKey": {
+                            "type": "string",
+                            "description": "The key of the color style to set. The key of the style is the key of the style in the style library, if you want to remove the style, pass in an empty string"
+                        }
+                    },
+                    "required": [
+                        "styleKey"
+                    ],
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+            },
+            {
+                "name": "set_text_style",
+                "description": "Set the text style of the text node. Use the itemId parameter to specify a item id. If no item id is provided, the currently selected item will be used. If a URL is provided, extract the item id from the URL. For example, if given the URL https://any-host/app/design/:fileName?item-id=1:2, the extracted itemId would be `1:2`",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "itemId": {
+                            "type": "string",
+                            "description": "The ID of the node in the Pixso document, eg. \"123:456\". This should be a valid node ID in the Pixso document."
+                        },
+                        "styleKey": {
+                            "type": "string",
+                            "description": "The key of the text style to set. The key of the style is the key of the style in the style library, if you want to remove the style, pass in an empty string"
+                        }
+                    },
+                    "required": [
+                        "styleKey"
+                    ],
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+            },
+            {
+                "name": "set_grid_style",
+                "description": "Set the grid style of the node. Use the itemId parameter to specify a item id. If no item id is provided, the currently selected item will be used. If a URL is provided, extract the item id from the URL. For example, if given the URL https://any-host/app/design/:fileName?item-id=1:2, the extracted itemId would be `1:2`",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "itemId": {
+                            "type": "string",
+                            "description": "The ID of the node in the Pixso document, eg. \"123:456\". This should be a valid node ID in the Pixso document."
+                        },
+                        "styleKey": {
+                            "type": "string",
+                            "description": "The key of the grid style to set. The key of the style is the key of the style in the style library, if you want to remove the style, pass in an empty string"
+                        }
+                    },
+                    "required": [
+                        "styleKey"
+                    ],
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+            },
+            {
+                "name": "code_to_design",
+                "description": "Convert an HTML string or a ZIP archive (containing HTML/CSS/assets) into a Pixso design node and paste it onto the current canvas.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "htmlStr": {
+                            "type": "string",
+                            "description": "Raw HTML string to convert. Provide either htmlStr or htmlBuffer, not both."
+                        },
+                        "htmlBuffer": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 255
+                            },
+                            "description": "ZIP archive bytes (as a number array) containing the HTML project to convert. Provide either htmlStr or htmlBuffer, not both."
+                        }
+                    },
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+            }
+        ]
+    },
+    "jsonrpc": "2.0",
+    "id": 2
+}

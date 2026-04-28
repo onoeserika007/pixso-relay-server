@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.pixso-cache/
+.codebuddy
+*.log
+.DS_Store
+.env
+.env.local
+relay.config.local.json

@@ -108,6 +108,28 @@ export async function runBootstrap(deps: BootstrapDeps): Promise<void> {
           indexedNodes: outcome.index.size(),
           rootCount: outcome.rootCount,
         });
+
+        // DEBUG: list downstream Pixso tools to verify get_screenshot availability
+        try {
+          const tools = await pixso.listTools();
+          const toolNames = tools.map((t) => t.name);
+          process.stdout.write(
+            `  ℹ Pixso downstream tools: ${toolNames.join(", ")}\n\n`
+          );
+          log.info("downstream tool list", { tools: toolNames });
+          if (!toolNames.includes("get_screenshot")) {
+            process.stdout.write(
+              `  ⚠ WARNING: "get_screenshot" is NOT in the downstream tool list!\n` +
+              `    Available tools: ${toolNames.join(", ")}\n\n`
+            );
+            log.warn("get_screenshot not found in downstream tools", { tools: toolNames });
+          }
+        } catch (err) {
+          log.warn("failed to list downstream tools", {
+            err: (err as Error).message,
+          });
+        }
+
         return;
       }
 

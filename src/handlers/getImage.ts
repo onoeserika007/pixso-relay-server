@@ -96,7 +96,7 @@ export async function handleGetImage(
     });
     // No dir to write into — passthrough base64 from Pixso so the upstream
     // caller still gets *something*.
-    const downstream = await pixso.callTool("get_image", forwardArgs);
+    const downstream = await pixso.callTool("get_screenshot", forwardArgs);
     return appendWarning(
       downstream,
       `relay: failed to create output dir "${targetDir}"; returned original base64`
@@ -106,17 +106,43 @@ export async function handleGetImage(
   // 3) call downstream
   let downstream: ToolCallResult;
   try {
-    downstream = await pixso.callTool("get_image", forwardArgs);
+    downstream = await pixso.callTool("get_screenshot", forwardArgs);
   } catch (err) {
-    log.error("downstream get_image failed", {
+    log.error("downstream get_screenshot failed", {
       err: (err as Error).message,
       durationMs: Date.now() - started,
     });
     throw err;
   }
 
+  // DEBUG: dump downstream response structure
+  log.debug("downstream raw response", {
+    hasContent: Array.isArray(downstream?.content),
+    contentLength: Array.isArray(downstream?.content)
+      ? downstream.content.length
+      : 0,
+    contentSummary: Array.isArray(downstream?.content)
+      ? downstream.content.map((entry: Record<string, unknown>, i: number) => ({
+          index: i,
+          type: entry?.type,
+          hasData: "data" in (entry ?? {}),
+          dataLength:
+            typeof entry?.data === "string" ? entry.data.length : undefined,
+          hasMimeType: "mimeType" in (entry ?? {}),
+          mimeType: entry?.mimeType,
+          textPreview:
+            entry?.type === "text" && typeof entry?.text === "string"
+              ? entry.text.slice(0, 120) + (entry.text.length > 120 ? "..." : "")
+              : undefined,
+          textLength:
+            typeof entry?.text === "string" ? entry.text.length : undefined,
+        }))
+      : [],
+    isError: downstream?.isError,
+  });
+
   // 4) extract base64
-  const extracted = extractBase64Png(downstream);
+  const extracted = extractBase64Png(downstream, log);
   if (!extracted) {
     log.warn("no base64 image in downstream response → passthrough", {
       durationMs: Date.now() - started,
@@ -231,34 +257,70 @@ function resolveSafeDir(customDir: string | null, config: Config): string {
  * URI / raw base64.
  */
 function extractBase64Png(
-  res: ToolCallResult
+  res: ToolCallResult,
+  log?: ReturnType<Logger["withFields"]>
 ): { buffer: Buffer } | null {
   const arr = res?.content;
-  if (!Array.isArray(arr)) return null;
-  for (const entry of arr) {
-    if (!entry || typeof entry !== "object") continue;
+  if (!Array.isArray(arr)) {
+    log?.debug("extractBase64Png: content is not an array", {
+      contentType: typeof res?.content,
+      contentValue: res?.content == null ? "null/undefined" : String(res.content).slice(0, 200),
+    });
+    return null;
+  }
+  for (let i = 0; i < arr.length; i++) {
+    const entry = arr[i];
+    if (!entry || typeof entry !== "object") {
+      log?.debug("extractBase64Png: skipping non-object entry", { index: i, value: String(entry) });
+      continue;
+    }
     const e = entry as Record<string, unknown>;
 
     // MCP image content: { type: "image", data: "<base64>", mimeType: "..." }
     if (e.type === "image" && typeof e.data === "string") {
+      log?.debug("extractBase64Png: found image entry", { index: i, dataLength: (e.data as string).length });
       const buf = safeBase64Decode(e.data);
       if (buf) return { buffer: buf };
+      log?.debug("extractBase64Png: image entry base64 decode failed", { index: i });
     }
 
     // Some Pixso flavors embed it as text
     if (e.type === "text" && typeof e.text === "string") {
-      const text = e.text.trim();
+      const text = (e.text as string).trim();
       const dataUriMatch = /^data:image\/[a-zA-Z0-9.+-]+;base64,(.+)$/i.exec(
         text
       );
       if (dataUriMatch) {
+        log?.debug("extractBase64Png: matched data URI", { index: i, b64Length: dataUriMatch[1]!.length });
         const buf = safeBase64Decode(dataUriMatch[1]!);
         if (buf) return { buffer: buf };
+        log?.debug("extractBase64Png: data URI base64 decode failed", { index: i });
       } else if (/^[A-Za-z0-9+/=\s]+$/.test(text) && text.length > 64) {
         // Heuristic: long pure base64 body
+        log?.debug("extractBase64Png: matched raw base64 heuristic", { index: i, textLength: text.length });
         const buf = safeBase64Decode(text);
         if (buf) return { buffer: buf };
+        log?.debug("extractBase64Png: raw base64 decode failed", { index: i });
+      } else {
+        // DEBUG: explain why this text entry was skipped
+        const isPureBase64Chars = /^[A-Za-z0-9+/=\s]+$/.test(text);
+        log?.debug("extractBase64Png: text entry not matched", {
+          index: i,
+          textLength: text.length,
+          isPureBase64Chars,
+          tooShort: text.length <= 64,
+          preview: text.slice(0, 120) + (text.length > 120 ? "..." : ""),
+        });
       }
+    }
+
+    // DEBUG: entry type not handled
+    if (e.type !== "image" && e.type !== "text") {
+      log?.debug("extractBase64Png: unhandled entry type", {
+        index: i,
+        type: e.type,
+        keys: Object.keys(e),
+      });
     }
   }
   return null;

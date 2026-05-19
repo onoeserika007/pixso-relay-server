@@ -94,7 +94,7 @@ export async function runBootstrap(deps: BootstrapDeps): Promise<void> {
         continue;
       }
 
-      const outcome = evaluate(res);
+      const outcome = evaluate(res, log);
       if (outcome.kind === "ok") {
         cache.set(ROOT_CACHE_KEY, outcome.index);
         readiness.ready = true;
@@ -135,6 +135,9 @@ export async function runBootstrap(deps: BootstrapDeps): Promise<void> {
 
       // Retry.
       process.stdout.write(`  ✗ ${outcome.reason}\n`);
+      process.stdout.write(
+        `    (set logLevel to "debug" in relay.config.json for full response dump)\n`
+      );
       log.warn("bootstrap: selection not usable", {
         attempt,
         reason: outcome.reason,
@@ -158,26 +161,67 @@ type EvalOutcome =
  * child count — any non-empty pixTreeNodes from an operator-confirmed
  * selection is treated as a valid root. The operator is the ground truth.
  */
-function evaluate(res: ToolCallResult): EvalOutcome {
+function evaluate(
+  res: ToolCallResult,
+  log?: ReturnType<Logger["withFields"]>
+): EvalOutcome {
   const arr = res?.content;
   if (!Array.isArray(arr) || arr.length === 0) {
+    log?.debug("evaluate: no content array", {
+      hasContent: !!res?.content,
+      contentType: typeof res?.content,
+    });
     return {
       kind: "retry",
       reason: "Pixso returned no content — is anything selected?",
     };
   }
+
+  // DEBUG: dump all content entries
+  log?.debug("evaluate: content entries", {
+    count: arr.length,
+    entries: arr.map((e: Record<string, unknown>, i: number) => ({
+      index: i,
+      type: e?.type,
+      textLength: typeof e?.text === "string" ? (e.text as string).length : undefined,
+      textPreview:
+        typeof e?.text === "string"
+          ? (e.text as string).slice(0, 300) + ((e.text as string).length > 300 ? "..." : "")
+          : undefined,
+    })),
+  });
+
   const first = arr[0] as { type?: string; text?: unknown };
   if (first?.type !== "text" || typeof first.text !== "string") {
+    log?.debug("evaluate: content[0] is not text", {
+      type: first?.type,
+      keys: first ? Object.keys(first) : [],
+    });
     return {
       kind: "retry",
       reason: "Pixso content[0] is not text — unexpected response shape",
     };
   }
+
   const root = parseRootDsl(first.text);
   if (!root) {
+    // Determine whether it's a JSON parse error or a shape mismatch
+    let parseError: string | null = null;
+    try {
+      const parsed = JSON.parse(first.text);
+      // JSON is valid but shape is wrong
+      parseError = `valid JSON but missing pixTreeNodes array. Top-level keys: ${Object.keys(parsed as object).join(", ")}`;
+    } catch (e) {
+      parseError = `JSON.parse failed: ${(e as Error).message}`;
+    }
+    log?.debug("evaluate: parseRootDsl returned null", {
+      parseError,
+      textLength: first.text.length,
+      textPreview: first.text.slice(0, 500) + (first.text.length > 500 ? "..." : ""),
+    });
     return {
       kind: "retry",
-      reason: "Pixso response is not valid DSL JSON",
+      reason: `Pixso response is not valid DSL JSON (${parseError})`,
     };
   }
   if (!Array.isArray(root.pixTreeNodes) || root.pixTreeNodes.length === 0) {
